@@ -9,6 +9,11 @@ class TTSWorker(QObject):
     def __init__(self, voice_choice_message: tuple):
         super().__init__()
         self.voice_choice_message = voice_choice_message
+        self.volume = None
+        self.rate = None
+        self.output_path = None
+        self.voice = None
+        self.text = None
         asyncio.run(self.fetch_voices_list())
 
     async def fetch_voices_list(self):
@@ -41,13 +46,6 @@ class TTSWorker(QObject):
         tts = Communicate(text, voice, rate=f"{rate}%", volume=f"{volume}%")
         tts.save_sync(output_path)
         self.finished.emit()
-
-    def value_setter(self, text: str, voice: str, output_path: str, rate: int=0, volume: int=0):
-        self.text = text
-        self.voice = voice
-        self.output_path = output_path
-        self.rate = rate
-        self.volume = volume
 
     def run(self):
         asyncio.run(self.generate_audio(self.text, self.voice, self.output_path, self.rate, self.volume))

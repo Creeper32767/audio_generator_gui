@@ -4,9 +4,11 @@ from PySide6.QtGui import QFont, QFontDatabase
 from qfluentwidgets import TextEdit, BodyLabel, FluentIcon, HeaderCardWidget, IconWidget, InfoBarIcon, \
     HyperlinkButton
 
+from library import International
+
 
 class DeveloperInfoCard(HeaderCardWidget):
-    def __init__(self, dev_title: str, dev_content: str, version: str, view_it_on_github: str, custom_font, parent=None):
+    def __init__(self, dev_title: str, dev_content: str, version: str, view: str, custom_font, parent=None):
         super().__init__(parent)
         self.setTitle(dev_title)
         self.infoLabel = BodyLabel(dev_content.format(version), self)
@@ -14,8 +16,8 @@ class DeveloperInfoCard(HeaderCardWidget):
 
         self.infoIcon = IconWidget(InfoBarIcon.INFORMATION, self)
         self.hyperlink_button = HyperlinkButton(
-            url="https://github.com/Creeper32767",
-            text=view_it_on_github,
+            url="https://github.com/Creeper32767/audio_generator_gui",
+            text=view,
             parent=self,
             icon=FluentIcon.GITHUB
         )
@@ -37,8 +39,9 @@ class DeveloperInfoCard(HeaderCardWidget):
 
 
 class InfoWindow(QMainWindow):
-    def __init__(self, view_it_on_github: str, version: str, dev_info: tuple, parent=None):
+    def __init__(self, translator: International, version: str, parent=None):
         super().__init__(parent=parent)
+        self.setObjectName("LicenseWindow")
         # Load custom font
         font_id = QFontDatabase.addApplicationFont("assets/consola.ttf")
         font_family = QFontDatabase.applicationFontFamilies(font_id)[0]
@@ -46,18 +49,16 @@ class InfoWindow(QMainWindow):
         # Set font size
         custom_font.setPointSize(12)
 
-        developer_info_card = DeveloperInfoCard(dev_title=dev_info[0],
-                                                dev_content=dev_info[1],
+        developer_info_card = DeveloperInfoCard(dev_title=translator.get_text('ui_about.developer.info'),
+                                                dev_content=translator.get_text('ui_about.developer.content'),
+                                                view=translator.get_text('ui_about.button_text'),
                                                 version=version,
-                                                view_it_on_github=view_it_on_github,
                                                 custom_font=custom_font,
-                                                parent=self
-                                                )
+                                                parent=self)
 
         # License text
         with open("LICENSE", encoding="utf-8") as fp:
             self.license_text = fp.read()
-        self.setObjectName("LicenseWindow")
 
         custom_font.setPointSize(10)
         # text editor to display license
