@@ -16,10 +16,13 @@ Copyright © 2025 by Creeper32767
 ## setup:
 
 ```
+git clone https://github.com/Creeper32767/audio_generator_gui.git
+cd "./audio_generator_gui/"
 pip install -r requirements.txt
-
+python main.py
 ```
 
 ## ISSUES
 
 Please give us your ideas through the 'issues' part on GitHub.
+
