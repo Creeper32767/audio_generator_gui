@@ -1,14 +1,14 @@
-from typing import Union, Any
+from typing import Any
 
 
-def get_key_with_order(dictionary: dict, order: int, completion: Union[str, int]) -> list:
+def get_key_with_order(dictionary: dict, order: int, completion: Any = "") -> list:
     """
     get the key with certain order, use it when the keys of a dictionary are lists
 
     Args:
         dictionary (dict): the dictionary
         order (int): the order that you want to get elements at this order
-        completion (Union[str, int]): what to add when there is no element at the order
+        completion (Any): the thing to add when there is no element at the order
 
     Returns:
         list: the elements at the order

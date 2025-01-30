@@ -33,5 +33,5 @@
   "ui_settings.choose_theme_content": "选择您喜欢的主题",
   "ui_settings.choose_theme_title": "选择主题",
   "ui_settings.restart": "点击按钮以应用更改",
-  "ui.settings.choose_theme_choices": ["LIGHT", "DARK", "AUTO"]
+  "ui.settings.choose_theme_choices": ["LIGHT", "DARK"]
 }

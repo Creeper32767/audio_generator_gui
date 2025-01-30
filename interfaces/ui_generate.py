@@ -1,5 +1,3 @@
-import json
-
 from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QFileDialog
 from PySide6.QtCore import QThread, QTimer
 from qfluentwidgets import TextEdit, PushButton, IndeterminateProgressBar, ComboBox, FluentIcon, Flyout, InfoBarIcon, \
@@ -7,23 +5,17 @@ from qfluentwidgets import TextEdit, PushButton, IndeterminateProgressBar, Combo
 from asyncio import run
 from os.path import join, abspath
 
-from library import TTSWorker, get_key_with_order, get_key_by_value_with_order, International
+from library import TTSWorker, get_key_with_order, get_key_by_value_with_order, International, BaseJsonOperator
 
 
 class GenerationWindow(QMainWindow):
-    def __init__(self, translator: International, parent=None):
-        """
-        initialization the window for generating audio.
-
-        Args:
-            translator (International): tool to get text
-            parent (_type_, optional): parent window. Defaults to None.
-        """
-
+    def __init__(self, translator: International, config: BaseJsonOperator, theme, parent=None):
         super().__init__(parent=parent)
         self.translator = translator
+        self.config = config
+        self.theme = theme
+
         self.path = None
-        self.folder_path = None
         self.voice_short_name = list()
         self.setObjectName("GenerationWindow")
 
@@ -49,23 +41,30 @@ class GenerationWindow(QMainWindow):
         self.voice_filter1 = ComboBox()
         self.voice_filter1.setMaxVisibleItems(10)
         self.voice_filter1.addItems(sorted(list(set(get_key_with_order(self.voice_info, 0, "")))))
+        self.voice_filter1.setText(config.search("location", self.translator.get_text("ui_generation.choose_locale")))
+        self.voice_filter1.currentTextChanged.connect(self.filter_changed)
         self.voice_filter1.currentTextChanged.connect(self.selection_changed)
         # choose gender
         self.voice_filter2 = ComboBox()
         self.voice_filter2.addItems(sorted(list(set(get_key_with_order(self.voice_info, 1, "")))))
+        self.voice_filter2.setText(config.search("gender", self.translator.get_text("ui_generation.choose_gender")))
+        self.voice_filter1.currentTextChanged.connect(self.filter_changed)
         self.voice_filter2.currentTextChanged.connect(self.selection_changed)
         # all voices
         self.voice_filter3 = ComboBox()
         self.voice_filter3.setMaxVisibleItems(10)
-        self.voice_filter3.addItems([self.translator.get_text("ui_generation.choose_voice")])
+        self.voice_filter3.setText(config.search("voice", self.translator.get_text("ui_generation.choose_voice")))
+        self.voice_filter3.currentTextChanged.connect(self.selection_changed)
         # voice rate
         self.voice_rate_setter = SpinBox()
         self.voice_rate_setter.setRange(-99, 500)
-        self.voice_rate_setter.setValue(0)
+        self.voice_rate_setter.setValue(config.search("speed", 0))
+        self.voice_rate_setter.editingFinished.connect(self.selection_changed)
         # voice volume
         self.voice_volume_setter = SpinBox()
         self.voice_volume_setter.setRange(-99, 500)
-        self.voice_volume_setter.setValue(0)
+        self.voice_volume_setter.setValue(config.search("volume", 0))
+        self.voice_volume_setter.editingFinished.connect(self.selection_changed)
         # output path
         self.file_path_selector_widget = QWidget(parent=self)
         self.horizontal_layout = QHBoxLayout()
@@ -73,31 +72,33 @@ class GenerationWindow(QMainWindow):
         # button for opening folder browser
         self.file_path_selector = PushButton(self.translator.get_text("ui_generation.choose_folder_title").format(self.path), self)
         self.file_path_selector.clicked.connect(self.open_folder_dialog)
+        self.folder_path = self.config.search("path", None)
         self.horizontal_layout.addWidget(self.file_path_selector)
         # button for entering file name
         self.file_name_input = LineEdit()
-        self.file_name_input.setText("output")
+        self.file_name_input.setText(self.config.search("name", "output"))
         self.file_name_input.textEdited.connect(self.update_path)
+        self.file_name_input.editingFinished.connect(self.selection_changed)
         self.horizontal_layout.addWidget(self.file_name_input)
 
         # join in layout
-        self.settngs_card.addGroup("./assets/location.svg",
+        self.settngs_card.addGroup(f"./assets/{self.theme}/location.svg",
                                    self.translator.get_text("ui_generation.choose_locale_title"),
                                    self.translator.get_text("ui_generation.choose_locale_content"),
                                    self.voice_filter1)
-        self.settngs_card.addGroup("./assets/music_note_1.svg",
+        self.settngs_card.addGroup(f"./assets/{self.theme}/music_note.svg",
                                    self.translator.get_text("ui_generation.choose_gender_title"),
                                    self.translator.get_text("ui_generation.choose_gender_content"),
                                    self.voice_filter2)
-        self.settngs_card.addGroup("./assets/person_circle.svg",
+        self.settngs_card.addGroup(f"./assets/{self.theme}/person_circle.svg",
                                    self.translator.get_text("ui_generation.choose_voice_title"),
                                    self.translator.get_text("ui_generation.choose_voice_content"),
                                    self.voice_filter3)
-        self.settngs_card.addGroup("./assets/speed.svg",
+        self.settngs_card.addGroup(f"./assets/{self.theme}/speed.svg",
                                    self.translator.get_text("ui_generation.enter_rate_title"),
                                    self.translator.get_text("ui_generation.enter_rate_content"),
                                    self.voice_rate_setter)
-        self.settngs_card.addGroup("./assets/speaker_edit.svg",
+        self.settngs_card.addGroup(f"./assets/{self.theme}/speaker_edit.svg",
                                    self.translator.get_text("ui_generation.enter_volume_title"),
                                    self.translator.get_text("ui_generation.enter_volume_content"),
                                    self.voice_volume_setter)
@@ -122,6 +123,15 @@ class GenerationWindow(QMainWindow):
         self.progress_bar = IndeterminateProgressBar()
 
     def selection_changed(self):
+        self.config.edit("location", self.voice_filter1.currentText())
+        self.config.edit("gender", self.voice_filter2.currentText())
+        self.config.edit("voice", self.voice_filter3.currentText())
+        self.config.edit("speed", self.voice_rate_setter.value())
+        self.config.edit("volume", self.voice_volume_setter.value())
+        self.config.edit("path", self.folder_path)
+        self.config.edit("name", self.file_name_input.text())
+
+    def filter_changed(self):
         selected_option1 = self.voice_filter1.currentText()
         selected_option2 = self.voice_filter2.currentText()
 
@@ -147,6 +157,7 @@ class GenerationWindow(QMainWindow):
         self.folder_path = QFileDialog.getExistingDirectory(self,
                                                             self.translator.get_text("ui_generation.choose_folder_title"),
                                                             "C:/")
+        self.selection_changed()
         self.update_path()
 
     def update_path(self):

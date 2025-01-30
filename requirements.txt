@@ -1,4 +1,3 @@
 PySide6
 PySide6-Fluent-Widgets
 edge-tts
-nuitka<2.5

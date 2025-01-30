@@ -33,5 +33,5 @@
   "ui_settings.choose_theme_content": "Choose your preferred theme",
   "ui_settings.choose_theme_title": "Choosing theme",
   "ui_settings.restart": "Click the button to apply the changes",
-  "ui.settings.choose_theme_choices": ["LIGHT", "DARK", "AUTO"]
+  "ui.settings.choose_theme_choices": ["LIGHT", "DARK"]
 }
