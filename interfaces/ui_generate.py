@@ -1,39 +1,38 @@
+from os.path import join, abspath
 from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QFileDialog
-from PySide6.QtCore import QThread, QTimer
+from PySide6.QtCore import QTimer, QThread
 from qfluentwidgets import TextEdit, PushButton, IndeterminateProgressBar, ComboBox, FluentIcon, Flyout, InfoBarIcon, \
     FlyoutAnimationType, GroupHeaderCardWidget, SpinBox, LineEdit, BodyLabel
-from asyncio import run
-from os.path import join, abspath
 
-from library import TTSWorker, get_key_with_order, get_key_by_value_with_order, International, BaseJsonOperator
+from library import get_key_with_order, get_key_by_value_with_order, International, BaseJsonOperator, TTSWorker
 
 
 class GenerationWindow(QMainWindow):
-    def __init__(self, translator: International, config: BaseJsonOperator, theme, parent=None):
+    def __init__(self,
+                 translator: International,
+                 config: BaseJsonOperator,
+                 theme: str,
+                 tts_generator: TTSWorker,
+                 parent=None):
         super().__init__(parent=parent)
         self.translator = translator
         self.config = config
         self.theme = theme
 
+        # other variables
         self.path = None
         self.voice_short_name = list()
         self.setObjectName("GenerationWindow")
 
+        self.tts_generator = tts_generator
+        self.voice_info = self.tts_generator.voice_indexes
+        self.thread = QThread(self)
+        self.tts_generator.moveToThread(self.thread)
+
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
-
         self.vertical_layout = QVBoxLayout()
         central_widget.setLayout(self.vertical_layout)
-
-        # create the second thread to fetch voices list
-        self.thread = QThread(self)
-        self.tts_generator = TTSWorker(
-            (self.translator.get_text("ui_generation.choose_locale"),
-            self.translator.get_text("ui_generation.choose_gender"),
-            self.translator.get_text("ui_generation.choose_voice"))
-        )
-        self.tts_generator.moveToThread(self.thread)
-        self.voice_info = run(self.tts_generator.fetch_voices_list())
 
         self.settngs_card = GroupHeaderCardWidget(parent=self)
         self.settngs_card.setTitle(self.translator.get_text("ui_generation.choice_title"))
@@ -41,29 +40,29 @@ class GenerationWindow(QMainWindow):
         self.voice_filter1 = ComboBox()
         self.voice_filter1.setMaxVisibleItems(10)
         self.voice_filter1.addItems(sorted(list(set(get_key_with_order(self.voice_info, 0, "")))))
-        self.voice_filter1.setText(config.search("location", self.translator.get_text("ui_generation.choose_locale")))
+        self.voice_filter1.setText(config.search("generate.location", self.translator.get_text("ui_generation.choose_locale")))
         self.voice_filter1.currentTextChanged.connect(self.filter_changed)
         self.voice_filter1.currentTextChanged.connect(self.selection_changed)
         # choose gender
         self.voice_filter2 = ComboBox()
         self.voice_filter2.addItems(sorted(list(set(get_key_with_order(self.voice_info, 1, "")))))
-        self.voice_filter2.setText(config.search("gender", self.translator.get_text("ui_generation.choose_gender")))
+        self.voice_filter2.setText(config.search("generate.gender", self.translator.get_text("ui_generation.choose_gender")))
         self.voice_filter1.currentTextChanged.connect(self.filter_changed)
         self.voice_filter2.currentTextChanged.connect(self.selection_changed)
         # all voices
         self.voice_filter3 = ComboBox()
         self.voice_filter3.setMaxVisibleItems(10)
-        self.voice_filter3.setText(config.search("voice", self.translator.get_text("ui_generation.choose_voice")))
+        self.voice_filter3.setText(config.search("generate.voice", self.translator.get_text("ui_generation.choose_voice")))
         self.voice_filter3.currentTextChanged.connect(self.selection_changed)
         # voice rate
         self.voice_rate_setter = SpinBox()
         self.voice_rate_setter.setRange(-99, 500)
-        self.voice_rate_setter.setValue(config.search("speed", 0))
+        self.voice_rate_setter.setValue(config.search("generate.speed", 0))
         self.voice_rate_setter.editingFinished.connect(self.selection_changed)
         # voice volume
         self.voice_volume_setter = SpinBox()
         self.voice_volume_setter.setRange(-99, 500)
-        self.voice_volume_setter.setValue(config.search("volume", 0))
+        self.voice_volume_setter.setValue(config.search("generate.volume", 0))
         self.voice_volume_setter.editingFinished.connect(self.selection_changed)
         # output path
         self.file_path_selector_widget = QWidget(parent=self)
@@ -72,11 +71,11 @@ class GenerationWindow(QMainWindow):
         # button for opening folder browser
         self.file_path_selector = PushButton(self.translator.get_text("ui_generation.choose_folder_title").format(self.path), self)
         self.file_path_selector.clicked.connect(self.open_folder_dialog)
-        self.folder_path = self.config.search("path", None)
+        self.folder_path = self.config.search("generate.path", None)
         self.horizontal_layout.addWidget(self.file_path_selector)
         # button for entering file name
         self.file_name_input = LineEdit()
-        self.file_name_input.setText(self.config.search("name", "output"))
+        self.file_name_input.setText(self.config.search("generate.audio_name", "output"))
         self.file_name_input.textEdited.connect(self.update_path)
         self.file_name_input.editingFinished.connect(self.selection_changed)
         self.horizontal_layout.addWidget(self.file_name_input)
@@ -123,13 +122,13 @@ class GenerationWindow(QMainWindow):
         self.progress_bar = IndeterminateProgressBar()
 
     def selection_changed(self):
-        self.config.edit("location", self.voice_filter1.currentText())
-        self.config.edit("gender", self.voice_filter2.currentText())
-        self.config.edit("voice", self.voice_filter3.currentText())
-        self.config.edit("speed", self.voice_rate_setter.value())
-        self.config.edit("volume", self.voice_volume_setter.value())
-        self.config.edit("path", self.folder_path)
-        self.config.edit("name", self.file_name_input.text())
+        self.config.edit("generate.location", self.voice_filter1.currentText())
+        self.config.edit("generate.gender", self.voice_filter2.currentText())
+        self.config.edit("generate.voice", self.voice_filter3.currentText())
+        self.config.edit("generate.speed", self.voice_rate_setter.value())
+        self.config.edit("generate.volume", self.voice_volume_setter.value())
+        self.config.edit("generate.path", self.folder_path)
+        self.config.edit("generate.audio_name", self.file_name_input.text())
 
     def filter_changed(self):
         selected_option1 = self.voice_filter1.currentText()
@@ -172,33 +171,34 @@ class GenerationWindow(QMainWindow):
         text = self.text_input.toPlainText()
         voice = self.voice_filter3.currentText()
 
-        try:
-            self.generate_button.setEnabled(False)
-            # set values
-            self.tts_generator.text = text
-            self.tts_generator.voice = voice
-            self.tts_generator.output_path = self.path
-            self.tts_generator.rate = self.voice_rate_setter.value()
-            self.tts_generator.volume = self.voice_volume_setter.value()
-            # set hook
-            self.thread.started.connect(self.tts_generator.run)
-            self.thread.finished.connect(self.finishing)
-            self.thread.start()
-            self.vertical_layout.addWidget(self.progress_bar)
-            self.thread.quit()
+        self.generate_button.setEnabled(False)
+        # set values
+        self.tts_generator.text = text
+        self.tts_generator.voice = voice
+        self.tts_generator.output_path = self.path
+        self.tts_generator.rate = self.voice_rate_setter.value()
+        self.tts_generator.volume = self.voice_volume_setter.value()
+        # start thread
+        self.thread.started.connect(self.tts_generator.starting_generating)
+        self.tts_generator.finished.connect(self.finishing)
+        self.tts_generator.finished.connect(self.thread.quit)
+        self.tts_generator.error.connect(self.show_error_message)
+        self.thread.start()
+        self.vertical_layout.addWidget(self.progress_bar)
 
-        except Exception as e:
-            Flyout.create(
-                icon=InfoBarIcon.ERROR,
-                title='ERROR',
-                content=self.translator.get_text("ui_generation.message.failed").format(e),
-                target=self.generate_button,
-                parent=self,
-                isClosable=True,
-                aniType=FlyoutAnimationType.PULL_UP
-            )
-            self.progress_bar.deleteLater()
-            self.generate_button.setEnabled(True)
+    def show_error_message(self, message: str):
+        Flyout.create(
+            icon=InfoBarIcon.ERROR,
+            title='ERROR',
+            content=self.translator.get_text("ui_generation.message.failed").format(message),
+            target=self.generate_button,
+            parent=self,
+            isClosable=True,
+            aniType=FlyoutAnimationType.PULL_UP
+        )
+        self.progress_bar.deleteLater()
+        self.progress_bar = IndeterminateProgressBar()
+        self.generate_button.setEnabled(True)
 
     def finishing(self):
         # send messages

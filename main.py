@@ -1,32 +1,88 @@
-import sys
+from sys import argv, exit
+from PySide6.QtCore import QSize, QThread
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QApplication
-from qfluentwidgets import FluentWindow, FluentIcon, NavigationItemPosition, setTheme, Theme
+from PySide6.QtWidgets import QApplication, QMessageBox
+from qfluentwidgets import FluentWindow, FluentIcon, NavigationItemPosition, setTheme, Theme, isDarkTheme, SplashScreen
+from qframelesswindow import StandardTitleBar
 
-from library import BaseJsonOperator, International
+from library import BaseJsonOperator, International, TTSWorker
 from interfaces import InfoWindow, GenerationWindow, SettingsWindow
 
 # setting name and version
-__version__ = "1.5.2"
+__version__ = "1.6.1"
 config = BaseJsonOperator("./config.json")
-Translator = International(config.search("locale", "en"), "./lang/")
+voice_index = BaseJsonOperator("./VOICE_INDEX")
+Translator = International(config.search("application.locale", "zh-cn"), "./lang/")
 
 
 class Window(FluentWindow):
     def __init__(self):
         super().__init__()
-        theme = config.search("theme", "LIGHT")
-        if theme == "DARK":
-            setTheme(Theme.DARK)
-        else:
-            setTheme(Theme.LIGHT)
-
         self.setWindowTitle(f"{Translator.get_text('application.name')} - {__version__}")
+        self.tts_generator = TTSWorker(
+            (Translator.get_text("ui_generation.choose_locale"),
+             Translator.get_text("ui_generation.choose_gender"),
+             Translator.get_text("ui_generation.choose_voice"))
+        )
+        self.setup_splash_window()
+
+    def setup_splash_window(self):
+        self.setWindowIcon(QIcon(f"./assets/person_voice.ico"))
+        self.resize(500, 300)
+        self.splash_screen = SplashScreen(self.windowIcon(), self)
+        self.splash_screen.setIconSize(QSize(102, 102))
+        title_bar = StandardTitleBar(self.splash_screen)
+        title_bar.setIcon(self.windowIcon())
+        title_bar.setTitle(self.windowTitle())
+        self.splash_screen.setTitleBar(title_bar)
+
+        screen = QApplication.primaryScreen().availableGeometry().center()
+        geometry = self.frameGeometry()
+        geometry.moveCenter(screen)
+        self.move(geometry.topLeft())
+
+        # defining activity
+        title_bar.setTitle(self.windowTitle() + " - Loading Voice Indexes...")
+        self.fetch_voice_list()
+
+    def fetch_voice_list(self):
+        if config.search("application.auto_download_index") or voice_index.json_content == dict():
+            thread = QThread(self)
+            self.tts_generator.moveToThread(thread)
+            thread.started.connect(self.tts_generator.starting_fetching)
+            self.tts_generator.finished.connect(self.splash_screen.finish)
+            self.tts_generator.finished.connect(thread.quit)
+            self.tts_generator.finished.connect(self.setup_ui)
+            self.tts_generator.error.connect(self.show_error_message)
+            thread.start()
+        else:
+            self.splash_screen.finish()
+            self.setup_ui()
+
+    def show_error_message(self, message: str):
+        error_message = QMessageBox()
+        error_message.setIcon(QMessageBox.Critical)
+        error_message.setWindowTitle("Error")
+        error_message.setText(Translator.get_text("ui_generation.message.failed").format(message))
+        error_message.setStandardButtons(QMessageBox.Ok)
+        error_message.exec()
+
+    def setup_ui(self):
+        voice_index.json_content = self.tts_generator.voice_indexes
+        voice_index.write_json()
+        theme = [Theme.AUTO, Theme.LIGHT, Theme.DARK][config.search("application.theme", 0)]
+        setTheme(theme)
+        theme = "DARK" if isDarkTheme() else "LIGHT"
         self.setWindowIcon(QIcon(f"./assets/{theme}/person_voice.svg"))
         self.resize(1000, 800)
 
+        screen = QApplication.primaryScreen().availableGeometry().center()
+        geometry = self.frameGeometry()
+        geometry.moveCenter(screen)
+        self.move(geometry.topLeft())
+
         # add sub-windows
-        ui_generation = GenerationWindow(Translator, config, theme, parent=self)
+        ui_generation = GenerationWindow(Translator, config, theme, self.tts_generator, parent=self)
         self.addSubInterface(
             ui_generation,
             icon=FluentIcon.VOLUME,
@@ -49,7 +105,7 @@ class Window(FluentWindow):
 
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
+    app = QApplication(argv)
     w = Window()
     w.show()
-    sys.exit(app.exec())
+    exit(app.exec())

@@ -19,6 +19,7 @@ class BaseJsonOperator(object):
         except FileNotFoundError:
                 with open(file_path, encoding="utf-8", mode="w"):
                     self.json_content = dict()
+                self.write_json()
 
     def write_json(self) -> None:
         """

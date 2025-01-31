@@ -33,5 +33,8 @@
   "ui_settings.choose_theme_content": "选择您喜欢的主题",
   "ui_settings.choose_theme_title": "选择主题",
   "ui_settings.restart": "点击按钮以应用更改",
-  "ui.settings.choose_theme_choices": ["LIGHT", "DARK"]
+  "ui.settings.choose_if_autodownload_content": "启动时下载语音索引",
+  "ui.settings.choose_if_autodownload_texts": ["开", "关"],
+  "ui.settings.choose_if_autodownload_title": "语音索引",
+  "ui.settings.choose_theme_choices": ["AUTO", "LIGHT", "DARK"]
 }

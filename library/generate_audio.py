@@ -5,6 +5,7 @@ from PySide6.QtCore import Signal, QObject
 
 class TTSWorker(QObject):
     finished = Signal()
+    error = Signal(str)
 
     def __init__(self, voice_choice_message: tuple):
         super().__init__()
@@ -14,7 +15,7 @@ class TTSWorker(QObject):
         self.output_path = None
         self.voice = None
         self.text = None
-        asyncio.run(self.fetch_voices_list())
+        self.voice_indexes = dict()
 
     async def fetch_voices_list(self):
         voices = await VoicesManager.create()
@@ -45,7 +46,18 @@ class TTSWorker(QObject):
 
         tts = Communicate(text, voice, rate=f"{rate}%", volume=f"{volume}%")
         tts.save_sync(output_path)
-        self.finished.emit()
 
-    def run(self):
-        asyncio.run(self.generate_audio(self.text, self.voice, self.output_path, self.rate, self.volume))
+    def starting_fetching(self):
+        try:
+            indexes = asyncio.run(self.fetch_voices_list())
+            self.voice_indexes = indexes
+            self.finished.emit()
+        except Exception as err:
+            self.error.emit(str(err))
+
+    def starting_generating(self):
+        try:
+            asyncio.run(self.generate_audio(self.text, self.voice, self.output_path, self.rate, self.volume))
+            self.finished.emit()
+        except Exception as err:
+            self.error.emit(str(err))
