@@ -25,7 +25,7 @@ class GenerationWindow(QMainWindow):
         self.setObjectName("GenerationWindow")
 
         self.tts_generator = tts_generator
-        self.voice_info = self.tts_generator.voice_indexes
+        self.voice_info = self.tts_generator.indexes_with_head
         self.thread = QThread(self)
         self.tts_generator.moveToThread(self.thread)
 
@@ -39,20 +39,21 @@ class GenerationWindow(QMainWindow):
         # choose locale
         self.voice_filter1 = ComboBox()
         self.voice_filter1.setMaxVisibleItems(10)
-        self.voice_filter1.addItems(sorted(list(set(get_key_with_order(self.voice_info, 0, "")))))
-        self.voice_filter1.setText(config.search("generate.location", self.translator.get_text("ui_generation.choose_locale")))
+        locale_list = sorted(list(set(get_key_with_order(self.voice_info, 0, ""))))
+        self.voice_filter1.addItems(locale_list)
+        self.voice_filter1.setText(locale_list[config.search("generate.location", 0)])
         self.voice_filter1.currentTextChanged.connect(self.filter_changed)
         self.voice_filter1.currentTextChanged.connect(self.selection_changed)
         # choose gender
         self.voice_filter2 = ComboBox()
-        self.voice_filter2.addItems(sorted(list(set(get_key_with_order(self.voice_info, 1, "")))))
-        self.voice_filter2.setText(config.search("generate.gender", self.translator.get_text("ui_generation.choose_gender")))
+        gender_list = sorted(list(set(get_key_with_order(self.voice_info, 1, ""))))
+        self.voice_filter2.addItems(gender_list)
+        self.voice_filter2.setText(gender_list[config.search("generate.gender", 0)])
         self.voice_filter1.currentTextChanged.connect(self.filter_changed)
         self.voice_filter2.currentTextChanged.connect(self.selection_changed)
         # all voices
         self.voice_filter3 = ComboBox()
         self.voice_filter3.setMaxVisibleItems(10)
-        self.voice_filter3.setText(config.search("generate.voice", self.translator.get_text("ui_generation.choose_voice")))
         self.voice_filter3.currentTextChanged.connect(self.selection_changed)
         # voice rate
         self.voice_rate_setter = SpinBox()
@@ -119,12 +120,12 @@ class GenerationWindow(QMainWindow):
         self.generate_button = PushButton(FluentIcon.PLAY, self.translator.get_text("ui_generation.generate"), self)
         self.generate_button.clicked.connect(self.generate_audio)
         self.vertical_layout.addWidget(self.generate_button)
+        self.filter_changed()
         self.progress_bar = IndeterminateProgressBar()
 
     def selection_changed(self):
-        self.config.edit("generate.location", self.voice_filter1.currentText())
-        self.config.edit("generate.gender", self.voice_filter2.currentText())
-        self.config.edit("generate.voice", self.voice_filter3.currentText())
+        self.config.edit("generate.location", self.voice_filter1.currentIndex())
+        self.config.edit("generate.gender", self.voice_filter2.currentIndex())
         self.config.edit("generate.speed", self.voice_rate_setter.value())
         self.config.edit("generate.volume", self.voice_volume_setter.value())
         self.config.edit("generate.path", self.folder_path)

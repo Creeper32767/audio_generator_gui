@@ -1,12 +1,11 @@
 {
   "application.locale": "zh-cn",
+  "application.auto_download_index": false,
   "application.theme": 0,
-  "generate.location": "- \u9009\u62e9\u6240\u9700\u8bed\u97f3\u7684\u533a\u57df\u8bbe\u7f6e -",
-  "generate.gender": "- \u9009\u62e9\u6240\u9700\u8bed\u97f3\u7684\u6027\u522b -",
-  "generate.voice": "- \u6682\u65e0\u7ed3\u679c -",
+  "generate.location": 0,
+  "generate.gender": 0,
   "generate.speed": 0,
   "generate.volume": 0,
   "generate.path": null,
-  "generate.audio_name": "output",
-  "application.auto_download_index": false
+  "generate.audio_name": "output"
 }

@@ -9,7 +9,7 @@ from library import BaseJsonOperator, International, TTSWorker
 from interfaces import InfoWindow, GenerationWindow, SettingsWindow
 
 # setting name and version
-__version__ = "1.6.1"
+__version__ = "1.6.2"
 config = BaseJsonOperator("./config.json")
 voice_index = BaseJsonOperator("./VOICE_INDEX")
 Translator = International(config.search("application.locale", "zh-cn"), "./lang/")
@@ -46,7 +46,7 @@ class Window(FluentWindow):
         self.fetch_voice_list()
 
     def fetch_voice_list(self):
-        if config.search("application.auto_download_index") or voice_index.json_content == dict():
+        if config.search("application.auto_download_index", False) or voice_index.json_content == dict():
             thread = QThread(self)
             self.tts_generator.moveToThread(thread)
             thread.started.connect(self.tts_generator.starting_fetching)
@@ -56,6 +56,7 @@ class Window(FluentWindow):
             self.tts_generator.error.connect(self.show_error_message)
             thread.start()
         else:
+            self.tts_generator.edit_voice_list(voice_index.json_content)
             self.splash_screen.finish()
             self.setup_ui()
 
@@ -66,15 +67,16 @@ class Window(FluentWindow):
         error_message.setText(Translator.get_text("ui_generation.message.failed").format(message))
         error_message.setStandardButtons(QMessageBox.Ok)
         error_message.exec()
+        exit("ERROR")
 
     def setup_ui(self):
-        voice_index.json_content = self.tts_generator.voice_indexes
+        voice_index.json_content = self.tts_generator.indexes_common
         voice_index.write_json()
         theme = [Theme.AUTO, Theme.LIGHT, Theme.DARK][config.search("application.theme", 0)]
         setTheme(theme)
         theme = "DARK" if isDarkTheme() else "LIGHT"
         self.setWindowIcon(QIcon(f"./assets/{theme}/person_voice.svg"))
-        self.resize(1000, 800)
+        self.resize(800, 800)
 
         screen = QApplication.primaryScreen().availableGeometry().center()
         geometry = self.frameGeometry()

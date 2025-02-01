@@ -15,49 +15,53 @@ class TTSWorker(QObject):
         self.output_path = None
         self.voice = None
         self.text = None
-        self.voice_indexes = dict()
+        self.indexes_with_head = dict()
+        self.indexes_common = dict()
 
-    async def fetch_voices_list(self):
+    async def fetch_voice_list(self) -> tuple:
         voices = await VoicesManager.create()
         voices = voices.find()
-        res = dict()
-        res[self.voice_choice_message[2]] = [self.voice_choice_message[0], self.voice_choice_message[1]]
+        res_with_head = dict()
+        res_common = dict()
+        res_with_head[self.voice_choice_message[2]] = [self.voice_choice_message[0], self.voice_choice_message[1]]
         for voice in voices:
-            res[voice["ShortName"]] = [voice["Locale"], voice["Gender"]]
+            res_with_head[voice["ShortName"]] = [voice["Locale"], voice["Gender"]]
+            res_common[voice["ShortName"]] = [voice["Locale"], voice["Gender"]]
 
-        return res
+        return res_with_head, res_common
 
-
-    async def generate_audio(self, text: str, voice: str, output_path: str, rate: int, volume: int):
+    async def generate_audio(self):
         """
         method for generating audio
-
-        Args:
-            text (str): the text that you need to transform
-            voice (str): voice type
-            output_path (str): where to write the audio file
-            rate (int, optional): the additional speed of the audio
-            volume (int, optional): the additional volume of the audio
         """        
-        if rate >= 0:
-            rate = f"+{rate}"
-        if volume >= 0:
-            volume = f"+{volume}"
+        if self.rate >= 0:
+            self.rate = f"+{self.rate}"
+        if self.volume >= 0:
+            self.volume = f"+{self.volume}"
 
-        tts = Communicate(text, voice, rate=f"{rate}%", volume=f"{volume}%")
-        tts.save_sync(output_path)
+        tts = Communicate(self.text, self.voice, rate=f"{self.rate}%", volume=f"{self.volume}%")
+        tts.save_sync(self.output_path)
 
     def starting_fetching(self):
         try:
-            indexes = asyncio.run(self.fetch_voices_list())
-            self.voice_indexes = indexes
+            indexes_with_head, indexes_common = asyncio.run(self.fetch_voice_list())
+            self.indexes_with_head = indexes_with_head
+            self.indexes_common = indexes_common
             self.finished.emit()
         except Exception as err:
             self.error.emit(str(err))
 
     def starting_generating(self):
         try:
-            asyncio.run(self.generate_audio(self.text, self.voice, self.output_path, self.rate, self.volume))
+            asyncio.run(self.generate_audio())
             self.finished.emit()
         except Exception as err:
             self.error.emit(str(err))
+
+    def edit_voice_list(self, indexes_common: dict):
+        self.indexes_common = indexes_common
+        indexes_with_head = dict()
+        indexes_with_head[self.voice_choice_message[2]] = [self.voice_choice_message[0], self.voice_choice_message[1]]
+        for key, value in indexes_common.items():
+            indexes_with_head[key] = value
+        self.indexes_with_head = indexes_with_head

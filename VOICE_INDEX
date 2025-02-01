@@ -1,8 +1,4 @@
 {
-  "- \u6682\u65e0\u7ed3\u679c -": [
-    "- \u9009\u62e9\u6240\u9700\u8bed\u97f3\u7684\u533a\u57df\u8bbe\u7f6e -",
-    "- \u9009\u62e9\u6240\u9700\u8bed\u97f3\u7684\u6027\u522b -"
-  ],
   "af-ZA-AdriNeural": [
     "af-ZA",
     "Female"
@@ -179,13 +175,13 @@
     "bn-IN",
     "Female"
   ],
-  "bs-BA-GoranNeural": [
-    "bs-BA",
-    "Male"
-  ],
   "bs-BA-VesnaNeural": [
     "bs-BA",
     "Female"
+  ],
+  "bs-BA-GoranNeural": [
+    "bs-BA",
+    "Male"
   ],
   "bg-BG-BorislavNeural": [
     "bg-BG",
@@ -327,13 +323,13 @@
     "en-CA",
     "Male"
   ],
-  "en-HK-SamNeural": [
-    "en-HK",
-    "Male"
-  ],
   "en-HK-YanNeural": [
     "en-HK",
     "Female"
+  ],
+  "en-HK-SamNeural": [
+    "en-HK",
+    "Male"
   ],
   "en-IN-NeerjaExpressiveNeural": [
     "en-IN",
@@ -1227,13 +1223,13 @@
     "th-TH",
     "Female"
   ],
-  "tr-TR-AhmetNeural": [
-    "tr-TR",
-    "Male"
-  ],
   "tr-TR-EmelNeural": [
     "tr-TR",
     "Female"
+  ],
+  "tr-TR-AhmetNeural": [
+    "tr-TR",
+    "Male"
   ],
   "uk-UA-OstapNeural": [
     "uk-UA",
