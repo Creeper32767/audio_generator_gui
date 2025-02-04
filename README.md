@@ -22,6 +22,11 @@ pip install -r requirements.txt
 python main.py
 ```
 
+## DONATION
+
+donate methods:
+1. PAYPAL - creeper_console@outlook.com
+
 ## ISSUES
 
 Please give us your ideas through the 'issues' part on GitHub.
