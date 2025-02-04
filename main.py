@@ -70,6 +70,7 @@ class Window(FluentWindow):
         exit("ERROR")
 
     def setup_ui(self):
+        self.hide()
         voice_index.json_content = self.tts_generator.indexes_common
         voice_index.write_json()
         theme = [Theme.AUTO, Theme.LIGHT, Theme.DARK][config.search("application.theme", 0)]
@@ -103,7 +104,9 @@ class Window(FluentWindow):
             ui_about,
             icon=FluentIcon.INFO,
             text=Translator.get_text("application.ui.about"),
-            position=NavigationItemPosition.BOTTOM,)
+            position=NavigationItemPosition.BOTTOM
+        )
+        self.show()
 
 
 if __name__ == '__main__':

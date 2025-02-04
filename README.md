@@ -4,7 +4,7 @@ This is a program to generate audio through texts.
 
 ## BEFORE START
 
-'audio_generator_gui' is licensed under [GPLv3](../LICENSE).
+'audio_generator_gui' is licensed under [GPLv3](./LICENSE).
 
 Copyright © 2025 by Creeper32767
 

@@ -1,11 +1,11 @@
 {
-  "application.locale": "zh-cn",
   "application.auto_download_index": false,
+  "application.locale": "zh-cn",
   "application.theme": 0,
-  "generate.location": 0,
+  "generate.audio_name": "output",
   "generate.gender": 0,
-  "generate.speed": 0,
-  "generate.volume": 0,
+  "generate.location": 0,
   "generate.path": null,
-  "generate.audio_name": "output"
+  "generate.speed": 0,
+  "generate.volume": 0
 }

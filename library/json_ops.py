@@ -27,7 +27,7 @@ class BaseJsonOperator(object):
         """
 
         with open(self.file_path, encoding="utf-8", mode="w") as fp:
-            json.dump(self.json_content, fp, indent=2)
+            json.dump(self.json_content, fp, indent=2, sort_keys=True)
 
     def search(self, key: str, default_value: Union[str, Any] = "Error") -> Union[str, Any]:
         """
