@@ -26,6 +26,7 @@ python main.py
 
 donate methods:
 1. PAYPAL - creeper_console@outlook.com
+2. [AFDIAN](https://afdian.com/a/001c1f2ad)
 
 ## ISSUES
 
