@@ -9,7 +9,7 @@ from library import BaseJsonOperator, International, TTSWorker
 from interfaces import InfoWindow, GenerationWindow, SettingsWindow
 
 # setting name and version
-__version__ = "1.6.2"
+__version__ = "1.6.4"
 config = BaseJsonOperator("./config.json")
 voice_index = BaseJsonOperator("./VOICE_INDEX")
 Translator = International(config.search("application.locale", "zh-cn"), "./lang/")
