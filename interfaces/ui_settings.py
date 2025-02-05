@@ -1,5 +1,5 @@
-from os import execv
 from sys import executable, argv
+from subprocess import Popen
 from PySide6.QtWidgets import QMainWindow, QVBoxLayout, QWidget, QSpacerItem, QSizePolicy
 from qfluentwidgets import GroupHeaderCardWidget, ComboBox, PushButton, SwitchButton, FluentIcon
 
@@ -59,7 +59,8 @@ class SettingsWindow(QMainWindow):
 
         # restart button
         self.restart_button = PushButton(translator.get_text("ui_settings.restart"))
-        self.restart_button.clicked.connect(lambda : execv(executable, [f'"{executable}"'] + argv))
+        self.restart_button.clicked.connect(lambda : Popen([executable] + argv))
+        self.restart_button.clicked.connect(lambda: exit("Restart"))
 
     def selection_changed(self):
         if self.restart_button is not None:

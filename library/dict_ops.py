@@ -3,7 +3,7 @@ from typing import Any
 
 def get_key_with_order(dictionary: dict, order: int, completion: Any = "") -> list:
     """
-    get the key with certain order, use it when the keys of a dictionary are lists
+    Get the key with certain order, use it when the keys of a dictionary are lists.
 
     Args:
         dictionary (dict): the dictionary
@@ -14,19 +14,12 @@ def get_key_with_order(dictionary: dict, order: int, completion: Any = "") -> li
         list: the elements at the order
     """
 
-    res = list()
-    try:
-        for value in dictionary.values():
-            res.append(value[order])
-    except IndexError:
-        res.append(completion)
-
-    return res
+    return [value[order] if order < len(value) else completion for value in dictionary.values()]
 
 
 def get_key_by_value(dictionary: dict, target_value: Any) -> list:
     """
-    get the key in a dictionary according to the value.
+    Get the key in a dictionary according to the value.
 
     Args:
         dictionary (dict): the dictionary
@@ -36,17 +29,12 @@ def get_key_by_value(dictionary: dict, target_value: Any) -> list:
         list: the keys that match the target_value
     """
 
-    res = list()
-    for key, value in dictionary.items():
-        if value == target_value:
-            res.append(key)
-
-    return res
+    return [key for key, value in dictionary.items() if value == target_value]
 
 
 def get_key_by_value_with_order(dictionary: dict, target_value: Any, order: int) -> list:
     """
-    get the key in a dictionary according to the value, meanwhile, the value is at certain order
+    Get the key in a dictionary according to the value, meanwhile, the value is at certain order of a list.
 
     Args:
         dictionary (dict): the dictionary
@@ -57,9 +45,4 @@ def get_key_by_value_with_order(dictionary: dict, target_value: Any, order: int)
         list: the keys that match the target_value
     """
 
-    res = list()
-    for key, value in dictionary.items():
-        if value[order] == target_value:
-            res.append(key)
-
-    return res
+    return [key for key, value in dictionary.items() if order < len(value) and value[order] == target_value]

@@ -133,24 +133,26 @@ class GenerationWindow(QMainWindow):
 
     def filter_changed(self):
         selected_option1 = self.voice_filter1.currentText()
+        selected_index1 = self.voice_filter1.currentIndex()
         selected_option2 = self.voice_filter2.currentText()
+        selected_index2 = self.voice_filter2.currentIndex()
+
+        filtered_names = [self.translator.get_text("ui_generation.choose_voice")]
 
         # filter step 1 - locale
-        if self.voice_filter1.currentIndex() != 0:
-            self.voice_short_name = get_key_by_value_with_order(self.voice_info, selected_option1, 0)
+        if selected_index1 != 0:
+            filtered_names = get_key_by_value_with_order(self.voice_info, selected_option1, 0)
 
         # filter step 2 - gender
-        if self.voice_filter2.currentIndex() != 0:
-            self.voice_short_name = list(filter(lambda x: self.voice_info[x][1] == selected_option2, self.voice_short_name))
+        if selected_index2 != 0:
+            filtered_names = [x for x in filtered_names if self.voice_info[x][1] == selected_option2]
 
-        if not self.voice_short_name:
-            self.voice_short_name = [self.translator.get_text("ui_generation.choose_voice")]
-        self.voice_short_name.sort()
+        filtered_names.sort(key=lambda x: x.lower())
+        self.voice_short_name = filtered_names
 
         # setting items
         self.voice_filter3.clear()
         self.voice_filter3.addItems(self.voice_short_name)
-        self.voice_short_name.clear()
 
     def open_folder_dialog(self):
         # Open the folder browser dialog
