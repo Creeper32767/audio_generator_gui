@@ -8,18 +8,18 @@ from library import International
 
 
 class DeveloperInfoCard(HeaderCardWidget):
-    def __init__(self, dev_title: str, dev_content: str, version: str, view: str, custom_font, parent=None):
+    def __init__(self, dev_title: str, dev_content: str, version: str, view: tuple, custom_font, parent=None):
         super().__init__(parent)
         self.setTitle(dev_title)
         self.infoLabel = BodyLabel(dev_content.format(version), self)
         self.infoLabel.setFont(custom_font)
 
         self.infoIcon = IconWidget(InfoBarIcon.INFORMATION, self)
-        self.hyperlink_button = HyperlinkButton(
-            url="https://github.com/Creeper32767/audio_generator_gui",
-            text=view,
-            parent=self,
-            icon=FluentIcon.GITHUB
+        self.hyperlink_button_1 = HyperlinkButton(
+            url="https://github.com/Creeper32767/audio_generator_gui", text=view[0], parent=self, icon=FluentIcon.GITHUB
+        )
+        self.hyperlink_button_2 = HyperlinkButton(
+            url="https://afdian.com/a/001c1f2ad", text=view[1], parent=self, icon=FluentIcon.LINK
         )
 
         self.vBoxLayout = QVBoxLayout()
@@ -27,14 +27,15 @@ class DeveloperInfoCard(HeaderCardWidget):
 
         self.infoIcon.setFixedSize(16, 16)
         self.hBoxLayout.setSpacing(10)
-        self.vBoxLayout.setSpacing(16)
+        self.vBoxLayout.setSpacing(0)
         self.hBoxLayout.setContentsMargins(0, 0, 0, 0)
         self.vBoxLayout.setContentsMargins(0, 0, 0, 0)
 
         self.hBoxLayout.addWidget(self.infoIcon)
         self.hBoxLayout.addWidget(self.infoLabel)
         self.vBoxLayout.addLayout(self.hBoxLayout)
-        self.vBoxLayout.addWidget(self.hyperlink_button)
+        self.vBoxLayout.addWidget(self.hyperlink_button_1)
+        self.vBoxLayout.addWidget(self.hyperlink_button_2)
         self.viewLayout.addLayout(self.vBoxLayout)
 
 
@@ -51,7 +52,8 @@ class InfoWindow(QMainWindow):
 
         developer_info_card = DeveloperInfoCard(dev_title=translator.get_text('ui_about.developer.info'),
                                                 dev_content=translator.get_text('ui_about.developer.content'),
-                                                view=translator.get_text('ui_about.button_text'),
+                                                view=(translator.get_text('ui_about.button_text_1'),
+                                                      translator.get_text("ui_about.button_text_2")),
                                                 version=version,
                                                 custom_font=custom_font,
                                                 parent=self)

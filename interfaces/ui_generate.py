@@ -49,12 +49,11 @@ class GenerationWindow(QMainWindow):
         gender_list = sorted(list(set(get_key_with_order(self.voice_info, 1, ""))))
         self.voice_filter2.addItems(gender_list)
         self.voice_filter2.setText(gender_list[config.search("generate.gender", 0)])
-        self.voice_filter1.currentTextChanged.connect(self.filter_changed)
+        self.voice_filter2.currentTextChanged.connect(self.filter_changed)
         self.voice_filter2.currentTextChanged.connect(self.selection_changed)
         # all voices
         self.voice_filter3 = ComboBox()
         self.voice_filter3.setMaxVisibleItems(10)
-        self.voice_filter3.currentTextChanged.connect(self.selection_changed)
         # voice rate
         self.voice_rate_setter = SpinBox()
         self.voice_rate_setter.setRange(-99, 500)
