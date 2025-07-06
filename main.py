@@ -9,7 +9,7 @@ from library import BaseJsonOperator, International, TTSWorker
 from interfaces import InfoWindow, GenerationWindow, SettingsWindow
 
 # setting name and version
-__version__ = "1.6.4"
+__version__ = "1.7.0"
 config = BaseJsonOperator("./config.json")
 voice_index = BaseJsonOperator("./VOICE_INDEX")
 Translator = International(config.search("application.locale", "zh-cn"), "./lang/")
@@ -20,9 +20,9 @@ class Window(FluentWindow):
         super().__init__()
         self.setWindowTitle(f"{Translator.get_text('application.name')} - {__version__}")
         self.tts_generator = TTSWorker(
-            (Translator.get_text("ui_generation.choose_locale"),
-             Translator.get_text("ui_generation.choose_gender"),
-             Translator.get_text("ui_generation.choose_voice"))
+            (Translator.get_text("ui.generation.choose_locale"),
+             Translator.get_text("ui.generation.choose_gender"),
+             Translator.get_text("ui.generation.choose_voice"))
         )
         self.setup_splash_window()
 
@@ -55,16 +55,18 @@ class Window(FluentWindow):
             self.tts_generator.finished.connect(self.setup_ui)
             self.tts_generator.error.connect(self.show_error_message)
             thread.start()
+            thread.wait()
         else:
             self.tts_generator.edit_voice_list(voice_index.json_content)
             self.splash_screen.finish()
             self.setup_ui()
 
-    def show_error_message(self, message: str):
+    @staticmethod
+    def show_error_message(message: str):
         error_message = QMessageBox()
         error_message.setIcon(QMessageBox.Critical)
         error_message.setWindowTitle("Error")
-        error_message.setText(Translator.get_text("ui_generation.message.failed").format(message))
+        error_message.setText(Translator.get_text("ui.generation.message.failed").format(message))
         error_message.setStandardButtons(QMessageBox.Ok)
         error_message.exec()
         exit("ERROR")
@@ -98,6 +100,7 @@ class Window(FluentWindow):
             icon=FluentIcon.SETTING,
             text=Translator.get_text("application.ui.settings")
         )
+        ui_settings.restartRequested.connect(self.handle_restart)
 
         ui_about = InfoWindow(Translator, __version__, parent=self)
         self.addSubInterface(
@@ -107,6 +110,13 @@ class Window(FluentWindow):
             position=NavigationItemPosition.BOTTOM
         )
         self.show()
+
+    @staticmethod
+    def handle_restart():
+        from sys import executable, argv
+        from os import execl
+        QApplication.quit()
+        execl(executable, executable, *argv)
 
 
 if __name__ == '__main__':
