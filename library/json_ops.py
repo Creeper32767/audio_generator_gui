@@ -9,8 +9,7 @@ class BaseJsonOperator(object):
         """
         Initialize an object from a json file.
 
-        Args:
-            file_path (str): the file path (relative and absolute path are both supported.)
+        :param file_path: The file path (relative and absolute path are both supported).
         """
         self.file_path = abspath(file_path)
         try:
@@ -25,41 +24,68 @@ class BaseJsonOperator(object):
         """
         Write content to a json file.
         """
-
         with open(self.file_path, encoding="utf-8", mode="w") as fp:
             json.dump(self.json_content, fp, indent=2, sort_keys=True)
 
-    def search(self, key: str, default_value: Union[str, Any] = "Error") -> Union[str, Any]:
+    def search(self,
+               key: str,
+               default_value: Union[str, Any] = "Error",
+               verification_types: Union[set, tuple, list, None] = None,
+               verification_not_types: Union[set, tuple, list, None] = None,
+               verification_in: Union[set, tuple, list, None] = None,
+               verification_not_in: Union[set, tuple, list, None] = None
+    ) -> Any:
         """
-        Read content from a dictionary.
+        Read value from a dictionary and return it.
 
-        Args:
-            key (str): the key in the dictionary
-            default_value (Any): the content to return when the key isn't found
+        :param key: Key you required in the dictionary.
+        :param default_value: Content to return when the key isn't found.
+        :param verification_types: Types the value should be.
+        :param verification_not_types: Types the value shouldn't be.
+        :param verification_in: Values the value should be one of them.
+        :param verification_not_in: Values the value shouldn't be one of them.
 
-        Returns:
-            Union[str, Any]: the value that follows the key
+        :return: The value that follows the key.
         """
-
         try:
-            return self.json_content[key]
+            res = self.json_content[key]
+            # Verification
+            if verification_types is not None:
+                if type(res) not in verification_types:
+                    self.save_default_value(key, default_value)
+                    return default_value
+            if verification_not_types is not None:
+                if type(res) in verification_not_types:
+                    self.save_default_value(key, default_value)
+                    return default_value
+            if verification_in is not None:
+                if res not in verification_in:
+                    self.save_default_value(key, default_value)
+                    return default_value
+            if verification_not_in is not None:
+                if res in verification_not_in:
+                    self.save_default_value(key, default_value)
+                    return default_value
+
+            return res
         except KeyError:
-            if default_value != "Error":
-                self.edit(key, default_value)
+            self.save_default_value(key, default_value)
             return default_value
+
+    def save_default_value(self, key: Any, default_value: Any):
+        # Sync values to the file
+        if default_value != "Error":
+            self.edit(key, default_value)
+        else:
+            self.edit(key, "")
 
     def edit(self, key: str, new_value: Any):
         """
         Edit content in a dictionary. It will add a key to the dictionary if the key doesn't exist.
 
-        Args:
-            key (str): the key in the dictionary
-            new_value (Any): the value that you want to use for replacement
-
-        Returns:
-            Union[str, None]: the possible return message
+        :param key: Key you required in the dictionary.
+        :param new_value: The value that you want to use for replacement.
         """
-
         self.json_content[key] = new_value
         self.write_json()
 
@@ -69,11 +95,9 @@ class International(BaseJsonOperator):
         """
         Initialization.
 
-        Args:
-            locale (str): the region required for setting languages
-            lang_path (str): the relative path of the folder that stores the language files
+        :param locale: Region(language name like 'zh-cn') required for setting languages.
+        :param lang_path: Relative path of the folder that stores the language files.
         """
-
         super().__init__(join(lang_path, f"{locale}.json"))
         self.locale = locale
         self.lang_path = lang_path
@@ -84,10 +108,8 @@ class International(BaseJsonOperator):
         """
         Update current locale.
 
-        Args:
-            new_locale (str): the region required for setting languages
+        :param new_locale: Region required for setting languages.
         """
-
         if new_locale in self.supported_languages:
             self.locale = new_locale
         else:
@@ -99,10 +121,8 @@ class International(BaseJsonOperator):
         """
         Get supported languages.
 
-        Returns:
-            list: a list including all the supported languages
+        :return: A list including all the supported languages.
         """
-
         li_lang = listdir(self.lang_path)
         li_support_lang = list()
         for file in li_lang:
@@ -118,11 +138,8 @@ class International(BaseJsonOperator):
         """
         Get the correct text according to the value of locale.
 
-        Args:
-            key (str): the key you want for getting its text
+        :param key: Key you required for getting its text.
 
-        Returns:
-            str: the text that follows the key
+        :return: Translated text that follows the key.
         """
-
-        return self.search(key)
+        return self.search(key, verification_types=[list, str])
