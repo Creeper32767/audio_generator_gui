@@ -1,0 +1,4 @@
+.idea/
+.venv/
+interfaces/__pycache__/
+library/__pycache__/

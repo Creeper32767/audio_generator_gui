@@ -2,9 +2,9 @@
   "application.auto_download_index": false,
   "application.locale": "zh-cn",
   "application.theme": 1,
-  "generate.audio_name": "Topic 7 - Interests & Entertainment - 20250613",
-  "generate.gender": 2,
-  "generate.location": 34,
-  "generate.speed": -15,
+  "generate.audio_name": "",
+  "generate.gender": 0,
+  "generate.location": 0,
+  "generate.speed": 0,
   "generate.volume": 0
 }

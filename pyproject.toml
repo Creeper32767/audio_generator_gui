@@ -1,0 +1,11 @@
+[project]
+name = "audio-generator-gui"
+version = "1.7.0"
+description = "A simple and elegant desktop application for generating high-quality audio from text using Microsoft Edge's Text-to-Speech service."
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "edge-tts>=7.2.3",
+    "pyside6>=6.6.3.1",
+    "pyside6-fluent-widgets>=1.8.7",
+]
