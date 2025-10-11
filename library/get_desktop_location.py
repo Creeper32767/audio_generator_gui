@@ -1,12 +1,9 @@
-import winreg
-from os.path import expandvars, abspath
+from os.path import join, expanduser
 
 
-def get_desktop_location():
-    key = winreg.OpenKey(
-        winreg.HKEY_CURRENT_USER,
-        r"Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders"
-    )
+def get_desktop_location() -> str:
+    return join(expanduser("~"), "Desktop")
 
-    path, _ = winreg.QueryValueEx(key, "Desktop")
-    return abspath(expandvars(path))
+
+if __name__ == "__main__":
+    print(get_desktop_location())
