@@ -80,23 +80,23 @@ class GenerationWindow(QMainWindow):
         self.horizontal_layout.addWidget(self.file_name_input)
 
         # join in layout
-        self.settngs_card.addGroup(f"./assets/{self.theme}/location.svg",
+        self.settngs_card.addGroup(f"assets/{self.theme}/location.svg",
                                    self.translator.get_text("ui.generation.choose_locale.title"),
                                    self.translator.get_text("ui.generation.choose_locale.content"),
                                    self.voice_filter1)
-        self.settngs_card.addGroup(f"./assets/{self.theme}/music_note.svg",
+        self.settngs_card.addGroup(f"assets/{self.theme}/music_note.svg",
                                    self.translator.get_text("ui.generation.choose_gender.title"),
                                    self.translator.get_text("ui.generation.choose_gender.content"),
                                    self.voice_filter2)
-        self.settngs_card.addGroup(f"./assets/{self.theme}/person_circle.svg",
+        self.settngs_card.addGroup(f"assets/{self.theme}/person_circle.svg",
                                    self.translator.get_text("ui.generation.choose_voice.title"),
                                    self.translator.get_text("ui.generation.choose_voice.content"),
                                    self.voice_filter3)
-        self.settngs_card.addGroup(f"./assets/{self.theme}/speed.svg",
+        self.settngs_card.addGroup(f"assets/{self.theme}/speed.svg",
                                    self.translator.get_text("ui.generation.enter_rate.title"),
                                    self.translator.get_text("ui.generation.enter_rate.content"),
                                    self.voice_rate_setter)
-        self.settngs_card.addGroup(f"./assets/{self.theme}/speaker_edit.svg",
+        self.settngs_card.addGroup(f"assets/{self.theme}/speaker_edit.svg",
                                    self.translator.get_text("ui.generation.enter_volume.title"),
                                    self.translator.get_text("ui.generation.enter_volume.content"),
                                    self.voice_volume_setter)

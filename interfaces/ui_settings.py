@@ -40,11 +40,11 @@ class SettingsWindow(QMainWindow):
         self.download_index_checkbox.setOnText(translator.get_text("ui.settings.autodownload.texts")[0])
         self.download_index_checkbox.setOffText(translator.get_text("ui.settings.autodownload.texts")[1])
         # join in layout
-        self.settngs_card.addGroup(f"./assets/{self.theme}/language.svg",
+        self.settngs_card.addGroup(f"assets/{self.theme}/language.svg",
                                    translator.get_text("ui.settings.choose_language.title"),
                                    translator.get_text("ui.settings.choose_language.content"),
                                    self.languages_combo_box)
-        self.settngs_card.addGroup(f"./assets/{self.theme}/theme.svg",
+        self.settngs_card.addGroup(f"assets/{self.theme}/theme.svg",
                                    translator.get_text("ui.settings.choose_theme.title"),
                                    translator.get_text("ui.settings.choose_theme.content"),
                                    self.theme_combo_box)

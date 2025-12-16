@@ -9,11 +9,10 @@ from library import BaseJsonOperator, International, TTSWorker
 from interfaces import InfoWindow, GenerationWindow, SettingsWindow
 
 # setting name and version
-__version__ = "1.7.0"
-config = BaseJsonOperator("./config.json")
-voice_index = BaseJsonOperator("./VOICE_INDEX")
-Translator = International(config.search("application.locale", "zh-cn"), "./lang/")
-
+__version__ = "1.7.1"
+config = BaseJsonOperator("config.json")
+voice_index = BaseJsonOperator("VOICE_INDEX")
+Translator = International(config.search("application.locale", "zh-cn"), "lang/")
 
 class Window(FluentWindow):
     def __init__(self):
@@ -27,7 +26,7 @@ class Window(FluentWindow):
         self.setup_splash_window()
 
     def setup_splash_window(self):
-        self.setWindowIcon(QIcon(f"./assets/person_voice.ico"))
+        self.setWindowIcon(QIcon(f"assets/person_voice.ico"))
         self.resize(500, 300)
         self.splash_screen = SplashScreen(self.windowIcon(), self)
         self.splash_screen.setIconSize(QSize(102, 102))
@@ -69,16 +68,16 @@ class Window(FluentWindow):
         error_message.setText(Translator.get_text("ui.generation.message.failed").format(message))
         error_message.setStandardButtons(QMessageBox.Ok)
         error_message.exec()
-        exit("ERROR")
+        exit("ERROR OCCURED! " + message)
 
     def setup_ui(self):
         self.hide()
         voice_index.json_content = self.tts_generator.indexes_common
         voice_index.write_json()
-        theme = [Theme.AUTO, Theme.LIGHT, Theme.DARK][config.search("application.theme", 0)]
+        theme: Theme = [Theme.AUTO, Theme.LIGHT, Theme.DARK][config.search("application.theme", 0)]
         setTheme(theme)
-        theme = "DARK" if isDarkTheme() else "LIGHT"
-        self.setWindowIcon(QIcon(f"./assets/{theme}/person_voice.svg"))
+        theme: str = "DARK" if isDarkTheme() else "LIGHT"
+        self.setWindowIcon(QIcon(f"assets/{theme}/person_voice.svg"))
         self.resize(800, 800)
 
         screen = QApplication.primaryScreen().availableGeometry().center()
