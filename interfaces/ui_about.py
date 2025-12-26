@@ -11,14 +11,16 @@ class InfoWindow(QMainWindow):
         self.setObjectName("LicenseWindow")
 
         # About
-        self.developer_info_group = SettingCardGroup(translator.get_text('ui.about.developer.title'))
+        self.developer_info_group = SettingCardGroup(
+            translator.get_text("ui.about.developer.title")
+        )
         self.view_on_github_card = HyperlinkCard(
             url="https://github.com/Creeper32767/audio_generator_gui",
             text=translator.get_text("ui.about.program.content"),
             icon=FluentIcon.GITHUB,
-            title=translator.get_text('ui.about.program.content'),
-            content=translator.get_text('ui.about.program.author').format(version),
-            parent=self.developer_info_group
+            title=translator.get_text("ui.about.program.content"),
+            content=translator.get_text("ui.about.program.author").format(version),
+            parent=self.developer_info_group,
         )
         self.donation_card = HyperlinkCard(
             url="https://afdian.com/a/001c1f2ad",
@@ -26,7 +28,7 @@ class InfoWindow(QMainWindow):
             icon=FluentIcon.LINK,
             title=translator.get_text("ui.about.donation.title"),
             content=translator.get_text("ui.about.donation.content"),
-            parent=self.developer_info_group
+            parent=self.developer_info_group,
         )
         self.developer_info_group.addSettingCard(self.view_on_github_card)
         self.developer_info_group.addSettingCard(self.donation_card)

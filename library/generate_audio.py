@@ -23,7 +23,10 @@ class TTSWorker(QObject):
         voices = voices.find()
         res_with_head = dict()
         res_common = dict()
-        res_with_head[self.voice_choice_message[2]] = [self.voice_choice_message[0], self.voice_choice_message[1]]
+        res_with_head[self.voice_choice_message[2]] = [
+            self.voice_choice_message[0],
+            self.voice_choice_message[1],
+        ]
         for voice in voices:
             res_with_head[voice["ShortName"]] = [voice["Locale"], voice["Gender"]]
             res_common[voice["ShortName"]] = [voice["Locale"], voice["Gender"]]
@@ -33,13 +36,15 @@ class TTSWorker(QObject):
     async def generate_audio(self):
         """
         method for generating audio
-        """        
+        """
         if self.rate >= 0:
             self.rate = f"+{self.rate}"
         if self.volume >= 0:
             self.volume = f"+{self.volume}"
 
-        tts = Communicate(self.text, self.voice, rate=f"{self.rate}%", volume=f"{self.volume}%")
+        tts = Communicate(
+            self.text, self.voice, rate=f"{self.rate}%", volume=f"{self.volume}%"
+        )
         tts.save_sync(self.output_path)
 
     def starting_fetching(self):
@@ -61,7 +66,10 @@ class TTSWorker(QObject):
     def edit_voice_list(self, indexes_common: dict):
         self.indexes_common = indexes_common
         indexes_with_head = dict()
-        indexes_with_head[self.voice_choice_message[2]] = [self.voice_choice_message[0], self.voice_choice_message[1]]
+        indexes_with_head[self.voice_choice_message[2]] = [
+            self.voice_choice_message[0],
+            self.voice_choice_message[1],
+        ]
         for key, value in indexes_common.items():
             indexes_with_head[key] = value
         self.indexes_with_head = indexes_with_head

@@ -2,7 +2,15 @@ from sys import argv, exit
 from PySide6.QtCore import QSize, QThread
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QApplication, QMessageBox
-from qfluentwidgets import FluentWindow, FluentIcon, NavigationItemPosition, setTheme, Theme, isDarkTheme, SplashScreen
+from qfluentwidgets import (
+    FluentWindow,
+    FluentIcon,
+    NavigationItemPosition,
+    setTheme,
+    Theme,
+    isDarkTheme,
+    SplashScreen,
+)
 from qframelesswindow import StandardTitleBar
 
 from library import BaseJsonOperator, International, TTSWorker
@@ -14,14 +22,19 @@ config = BaseJsonOperator("config.json")
 voice_index = BaseJsonOperator("VOICE_INDEX")
 Translator = International(config.search("application.locale", "zh-cn"), "lang/")
 
+
 class Window(FluentWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle(f"{Translator.get_text('application.name')} - {__version__}")
+        self.setWindowTitle(
+            f"{Translator.get_text('application.name')} - {__version__}"
+        )
         self.tts_generator = TTSWorker(
-            (Translator.get_text("ui.generation.choose_locale"),
-             Translator.get_text("ui.generation.choose_gender"),
-             Translator.get_text("ui.generation.choose_voice"))
+            (
+                Translator.get_text("ui.generation.choose_locale"),
+                Translator.get_text("ui.generation.choose_gender"),
+                Translator.get_text("ui.generation.choose_voice"),
+            )
         )
         self.setup_splash_window()
 
@@ -45,7 +58,10 @@ class Window(FluentWindow):
         self.fetch_voice_list()
 
     def fetch_voice_list(self):
-        if config.search("application.auto_download_index", False) or voice_index.json_content == dict():
+        if (
+            config.search("application.auto_download_index", False)
+            or voice_index.json_content == dict()
+        ):
             thread = QThread(self)
             self.tts_generator.moveToThread(thread)
             thread.started.connect(self.tts_generator.starting_fetching)
@@ -65,7 +81,9 @@ class Window(FluentWindow):
         error_message = QMessageBox()
         error_message.setIcon(QMessageBox.Critical)
         error_message.setWindowTitle("Error")
-        error_message.setText(Translator.get_text("ui.generation.message.failed").format(message))
+        error_message.setText(
+            Translator.get_text("ui.generation.message.failed").format(message)
+        )
         error_message.setStandardButtons(QMessageBox.Ok)
         error_message.exec()
         exit("ERROR OCCURED! " + message)
@@ -74,7 +92,9 @@ class Window(FluentWindow):
         self.hide()
         voice_index.json_content = self.tts_generator.indexes_common
         voice_index.write_json()
-        theme: Theme = [Theme.AUTO, Theme.LIGHT, Theme.DARK][config.search("application.theme", 0)]
+        theme: Theme = [Theme.AUTO, Theme.LIGHT, Theme.DARK][
+            config.search("application.theme", 0)
+        ]
         setTheme(theme)
         theme: str = "DARK" if isDarkTheme() else "LIGHT"
         self.setWindowIcon(QIcon(f"assets/{theme}/person_voice.svg"))
@@ -86,18 +106,20 @@ class Window(FluentWindow):
         self.move(geometry.topLeft())
 
         # add sub-windows
-        ui_generation = GenerationWindow(Translator, config, theme, self.tts_generator, parent=self)
+        ui_generation = GenerationWindow(
+            Translator, config, theme, self.tts_generator, parent=self
+        )
         self.addSubInterface(
             ui_generation,
             icon=FluentIcon.VOLUME,
-            text=Translator.get_text("application.ui.generation")
+            text=Translator.get_text("application.ui.generation"),
         )
 
         ui_settings = SettingsWindow(Translator, config, theme, parent=self)
         self.addSubInterface(
             ui_settings,
             icon=FluentIcon.SETTING,
-            text=Translator.get_text("application.ui.settings")
+            text=Translator.get_text("application.ui.settings"),
         )
         ui_settings.restartRequested.connect(self.handle_restart)
 
@@ -106,7 +128,7 @@ class Window(FluentWindow):
             ui_about,
             icon=FluentIcon.INFO,
             text=Translator.get_text("application.ui.about"),
-            position=NavigationItemPosition.BOTTOM
+            position=NavigationItemPosition.BOTTOM,
         )
         self.show()
 
@@ -114,11 +136,12 @@ class Window(FluentWindow):
     def handle_restart():
         from sys import executable, argv
         from os import execl
+
         QApplication.quit()
         execl(executable, executable, *argv)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app = QApplication(argv)
     w = Window()
     w.show()

@@ -16,9 +16,9 @@ class BaseJsonOperator(object):
             with open(file_path, encoding="utf-8") as fp:
                 self.json_content = json.load(fp)
         except FileNotFoundError:
-                with open(file_path, encoding="utf-8", mode="w") as fp:
-                    self.json_content = dict()
-                    fp.write("{\n}")
+            with open(file_path, encoding="utf-8", mode="w") as fp:
+                self.json_content = dict()
+                fp.write("{\n}")
 
     def write_json(self) -> None:
         """
@@ -27,13 +27,14 @@ class BaseJsonOperator(object):
         with open(self.file_path, encoding="utf-8", mode="w") as fp:
             json.dump(self.json_content, fp, indent=2, sort_keys=True)
 
-    def search(self,
-               key: str,
-               default_value: Union[str, Any] = "Error",
-               verification_types: Union[set, tuple, list, None] = None,
-               verification_not_types: Union[set, tuple, list, None] = None,
-               verification_in: Union[set, tuple, list, None] = None,
-               verification_not_in: Union[set, tuple, list, None] = None
+    def search(
+        self,
+        key: str,
+        default_value: Union[str, Any] = "Error",
+        verification_types: Union[set, tuple, list, None] = None,
+        verification_not_types: Union[set, tuple, list, None] = None,
+        verification_in: Union[set, tuple, list, None] = None,
+        verification_not_in: Union[set, tuple, list, None] = None,
     ) -> Any:
         """
         Read value from a dictionary and return it.
@@ -132,7 +133,6 @@ class International(BaseJsonOperator):
                 pass
 
         return li_support_lang
-
 
     def get_text(self, key: str) -> str:
         """

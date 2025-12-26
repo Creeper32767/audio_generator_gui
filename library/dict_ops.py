@@ -11,7 +11,10 @@ def get_key_with_order(dictionary: dict, order: int, completion: Any = "") -> li
 
     :return: Elements at the order
     """
-    return [value[order] if order < len(value) else completion for value in dictionary.values()]
+    return [
+        value[order] if order < len(value) else completion
+        for value in dictionary.values()
+    ]
 
 
 def get_key_by_value(dictionary: dict, target_value: Any) -> list:
@@ -26,7 +29,9 @@ def get_key_by_value(dictionary: dict, target_value: Any) -> list:
     return [key for key, value in dictionary.items() if value == target_value]
 
 
-def get_key_by_value_with_order(dictionary: dict, target_value: Any, order: int) -> list:
+def get_key_by_value_with_order(
+    dictionary: dict, target_value: Any, order: int
+) -> list:
     """
     Get the key in a dictionary according to the value, meanwhile, the value is at certain order of a list.
 
@@ -36,4 +41,8 @@ def get_key_by_value_with_order(dictionary: dict, target_value: Any, order: int)
 
     :return: Keys that match the target_value
     """
-    return [key for key, value in dictionary.items() if order < len(value) and value[order] == target_value]
+    return [
+        key
+        for key, value in dictionary.items()
+        if order < len(value) and value[order] == target_value
+    ]

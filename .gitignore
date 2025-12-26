@@ -1,4 +1,4 @@
-.idea/
-.venv/
-interfaces/__pycache__/
-library/__pycache__/
+.idea/*
+.venv/*
+interfaces/__pycache__/*
+library/__pycache__/*
